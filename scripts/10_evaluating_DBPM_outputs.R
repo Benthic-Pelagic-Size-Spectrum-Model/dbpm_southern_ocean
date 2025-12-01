@@ -110,8 +110,8 @@ catch_dbpm_obs |>
 
 # Plotting modelled vs observed catches  ----------------------------------
 si_catch <- catch_dbpm_obs |> 
-  #Select runs with sea ice mask and calibration (non-spatial)
-  filter(run == "si" | res == "calib") |> 
+  #Select runs with sea ice mask
+  filter(run == "si") |> 
   ggplot()+
   geom_ribbon(aes(x = year, ymin = min_catch_density, 
                   ymax = max_catch_density), fill = "#d8d6dd")+
@@ -120,8 +120,8 @@ si_catch <- catch_dbpm_obs |>
   geom_line(aes(year, obs, color = source), linetype = "dashed")+
   geom_point(aes(year, obs, color = source, shape = source), size = 0.2)+
   facet_grid(region~., scales = "free_y")+
-  scale_color_manual(values = c("#d7301f", "#fc8d59", "#fdcc8a", "#045a8d", 
-                                "#2b8cbe", "#74a9cf"))+
+  scale_color_manual(values = c("#d7301f", "#fc8d59",  "#045a8d", "#2b8cbe", 
+                                "#74a9cf"))+
   ylab(~paste("Mean annual catch per unit area (t*", km^-2, ")"))+
   theme_bw()+
   theme(panel.grid.minor = element_blank(), axis.title.x = element_blank(), 
@@ -135,15 +135,15 @@ si_catch <- catch_dbpm_obs |>
 # Creating figure to get legend for different DBPM resolutions
 fig_leg <- catch_dbpm_obs |> 
   #Select runs with sea ice mask and calibration (non-spatial) for sample region
-  filter((run == "si" | res == "calib") & region == "FAO 58") |> 
+  filter((run == "si") & region == "FAO 58") |> 
   ggplot()+
   geom_line(aes(year, vals, color = res), linewidth = 0.9)+
   geom_point(aes(year, vals, color = res, shape = res), size = 1.5)+
   scale_color_manual("DBPM simulated catches", 
-                     values = c("#d7301f", "#fc8d59", "#fdcc8a"),
-                     labels = c("0.25°", "1°", "non-spatial (calibration)"))+
+                     values = c("#d7301f", "#fc8d59"),
+                     labels = c("0.25°", "1°"))+
   scale_shape_discrete("DBPM simulated catches", 
-                       labels = c("0.25°", "1°", "non-spatial (calibration)"))+
+                       labels = c("0.25°", "1°"))+
   theme_bw()+
   theme(legend.title = element_text(family = "sans", size = 12, face = "bold", 
                                     hjust = 0.5), legend.title.position = "top",
@@ -156,7 +156,7 @@ leg_res <- get_plot_component(fig_leg, "guide-box-top", return_all = T)
 # Creating figure to get legend for different observed catches sources
 fig_leg <- catch_dbpm_obs |> 
   #Select runs with sea ice mask and calibration (non-spatial) for sample region
-  filter((run == "si" | res == "calib") & region == "FAO 58") |> 
+  filter((run == "si") & region == "FAO 58") |> 
   ggplot()+
   geom_line(aes(year, obs, color = source), linetype = "dashed")+
   geom_point(aes(year, obs, color = source, shape = source), size = 0.2)+
@@ -175,15 +175,16 @@ fig_leg <- catch_dbpm_obs |>
 leg_obs <- get_plot_component(fig_leg, "guide-box-top", return_all = T)
 
 
-fig <- plot_grid(plot_grid(leg_res, leg_obs, ncol = 2, rel_widths = c(0.9, 1)), 
+fig <- plot_grid(plot_grid(leg_res, leg_obs, ncol = 2, rel_widths = c(0.55, 1)), 
                  si_catch, nrow = 2, rel_heights = c(0.15, 1))
 
-ggsave("outputs/composite_fig_catches_obs.png", fig, bg = "white")
+ggsave("outputs/composite_fig_catches_obs.png", fig, bg = "white", width = 7.5, 
+       height = 5)
 
 
-
-#Comparison original and sea ice mask runs
+## Comparison original and sea ice mask runs ----
 si_catch_both_runs <- catch_dbpm_obs |> 
+  filter(res != "calib") |> 
   ggplot()+
   geom_ribbon(aes(x = year, ymin = min_catch_density, 
                   ymax = max_catch_density), fill = "#d8d6dd")+
@@ -192,8 +193,8 @@ si_catch_both_runs <- catch_dbpm_obs |>
   geom_line(aes(year, obs, color = source), linetype = "dashed")+
   geom_point(aes(year, obs, color = source, shape = source), size = 0.2)+
   facet_grid(region~., scales = "free_y")+
-  scale_color_manual("", values = c("#d7301f", "#fc8d59", "#fdcc8a",
-                                "#045a8d", "#2b8cbe", "#74a9cf"))+
+  scale_color_manual("", values = c("#d7301f", "#fc8d59", "#045a8d", "#2b8cbe",
+                                    "#74a9cf"))+
   scale_linetype_manual("Runs", values = c(1, 3), 
                         labels = c("original", "sea ice mask"))+
   ylab(~paste("Mean annual catch per unit area (t*", km^-2, ")"))+
