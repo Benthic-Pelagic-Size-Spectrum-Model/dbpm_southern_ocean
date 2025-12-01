@@ -326,17 +326,20 @@ catch_both <- catch_ccamlr_data |>
 
 catch_both |> 
   select(!catch_diff) |> 
+  filter(resolution != "non-spatial") |> 
   pivot_longer(c(ccamlr, standardised), names_to = "effort", 
                values_to = "mean_vals") |> 
   left_join(obs_catch, by = c("year", "region")) |> 
   ggplot()+
   geom_ribbon(aes(x = year, ymin = min_catch_density, ymax = max_catch_density),
               fill = "#d8d6dd")+
+  geom_line(aes(year, min_catch_density), color = "#2c7bb6")+
+  geom_line(aes(year, max_catch_density), color = "#2c7bb6")+
   geom_line(aes(year, mean_vals, color = resolution, linetype = effort))+
   geom_point(aes(year, mean_vals, color = resolution, shape = resolution), 
              size = 1., show.legend = F)+
   scale_color_manual("DBPM resolution",
-                     values = c("#d7301f", "#fc8d59", "#fdcc8a"))+
+                     values = c("#d7301f", "#fc8d59"))+
   scale_linetype_manual("Fishing effort source", values = c("dashed", "solid"),
                         labels = c("CCAMLR", "standard FishMIP"))+
   facet_grid(region~., scales = "free")+
