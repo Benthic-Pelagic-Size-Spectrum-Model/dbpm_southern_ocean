@@ -44,7 +44,7 @@ Plots created in this script can be used to visually inspect the fit of predicte
 - Script [`08_calculating_biomass.py`](scripts/08_calculating_biomass.py) produces calculates biomass for predators and detritivores from DBPM outputs produced in [step 6](scripts/06_running_gridded_DBPM.py).  
 
 ## Step 9. Plotting outputs
-- Script [`09a_processing_data_maps.py`](scripts/09a_processing_data_maps.py) processes DBPM outputs that are paased on to  [`09b_plotting_gridded_DBPM_outputs.ipynb`](scripts/09b_plotting_gridded_DBPM_outputs.ipynb) to create maps of biomass and catches.  
+- Script [`09a_processing_data_maps.py`](scripts/09a_processing_data_maps.py) processes DBPM outputs that are passed on to [`09b_plotting_gridded_DBPM_outputs.ipynb`](scripts/09b_plotting_gridded_DBPM_outputs.ipynb) to create maps of biomass and catches.  
   
 ## Step 10. DBPM output evaluation
 - Script [`10_evaluating_DBPM_outputs.R`](scripts/10_evaluating_DBPM_outputs.R) applies the observation range adjusted method to evaluate model performance as described in [Evans & Imran 2024](https://doi.org/10.1088/2515-7620/ad5ad8) prior to calculating a number of skill assessment metrics described in [Rynne et al 2025](https://doi.org/10.1029/2024EF004868).  
