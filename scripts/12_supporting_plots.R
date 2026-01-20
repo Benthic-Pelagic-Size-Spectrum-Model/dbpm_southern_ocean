@@ -190,7 +190,7 @@ catch_data |>
 fishing_pressure <- catch_data |> 
   left_join(bio_data, by = c("year", "region", "resolution")) |> 
   mutate(fp = mean_catch/mean_expl_bio,
-         period = ifelse(year <= 1960, "steady", "historical"))
+         period = ifelse(year <= 1961, "steady", "historical"))
 
 # Save results
 fishing_pressure |> 
@@ -201,7 +201,7 @@ fishing_pressure |>
 fishing_pressure |> 
   filter(period == "steady") |> 
   ggplot(aes(year, fp, color = resolution))+
-  geom_line(aes(size = resolution))+
+  geom_line()+
   scale_size_manual(values = c(1.6, 0.8, 0.4))+
   geom_point(aes(shape = resolution))+
   scale_color_manual(values = c("#d7301f", "#fc8d59", "#fdcc8a"))+
@@ -211,7 +211,7 @@ fishing_pressure |>
 
 ggsave("outputs/fishing_pressure_1841-1960.tif")
 
-fishing_pressure |> 
+fp_plot <- fishing_pressure |> 
   filter(period == "historical") |> 
   ggplot(aes(year, fp, color = resolution))+
   geom_line()+
@@ -224,13 +224,9 @@ fishing_pressure |>
   labs(y = "Fishing pressure")+
   theme(strip.text = element_text(family = "sans", size = 12),
         axis.text = element_text(family = "sans", size = 12), 
-        axis.title.x = element_blank(), legend.position = "top",
+        axis.title.x = element_blank(), legend.position = "none",
         axis.title.y = element_text(family = "sans", size = 14, 
                                     margin = margin(5, 5, 7.5, 5, unit = "pt")), 
-        legend.direction = "horizontal", legend.title.position = "top",
-        legend.title = element_text(family = "sans", face = "bold", 
-                                    hjust = 0.5), 
-        legend.text = element_text(family = "sans", size = 12), 
         panel.grid.minor = element_blank(), 
         plot.margin = margin(0, 5, 5, 5, unit = "pt"), 
         legend.margin = margin(5, 5, 0, 5, unit = "pt"),
@@ -240,41 +236,63 @@ ggsave("outputs/fishing_pressure_1961-2010.png")
 
 
 # Exploited biomass vs catches --------------------------------------------
-# rel_fp
-fishing_pressure |> 
+rel_fp <- fishing_pressure |> 
   filter(year >= 1961) |> 
   group_by(region, resolution) |> 
   mutate(max_ts_catch = max(mean_catch, na.rm = T),
-         max_ts_expl_bio = max(mean_expl_bio, na.rm = T)) |> 
+         max_ts_expl_bio = max(mean_expl_bio, na.rm = T),
+         rel_catch = mean_catch/max_ts_catch,
+         rel_expl_bio = mean_expl_bio/max_ts_expl_bio) |> 
+  select(!period)
   
-
-# rel_fp <- read_parquet(
-#   "outputs/catch_expl-bio_fishing-pressure_1961-2010.parquet")
-
+# Save outputs
 rel_fp |> 
+  write_parquet("outputs/catch_expl-bio_fishing-pressure_1961-2010.parquet")
+
+relfp_plot <- rel_fp |> 
   select(year:resolution, starts_with("rel_")) |>
   pivot_longer(starts_with("rel_"), names_to = "data", values_to = "vals") |> 
   ggplot(aes(color = resolution, linetype = data))+
   geom_line(aes(year, vals))+
   scale_color_manual("DBPM resolution",
-                     values = c("#d7301f", "#fc8d59", "#fdcc8a"))+
-  scale_linetype_manual("", values = c(2, 1), 
+                     values = c("#d7301f", "#fc8d59"))+
+  scale_linetype_manual("DBPM outputs", values = c(2, 1), 
                         labels = c("Catches", "Exploitable biomass"))+
   facet_grid(region~.)+
   theme_bw()+
+  labs(y = "Proportion")+
   theme(strip.text = element_text(family = "sans", size = 12),
         axis.text = element_text(family = "sans", size = 12), 
-        axis.title = element_blank(), legend.position = "top",
+        axis.title.y = element_text(family = "sans", size = 14, 
+                                    margin = margin(5, 5, 7.5, 5, unit = "pt")),
+        axis.title.x = element_blank(), legend.position = "top",
         legend.direction = "horizontal", legend.title.position = "top",
         legend.title = element_text(family = "sans", face = "bold", 
                                     hjust = 0.5), 
         legend.text = element_text(family = "sans", size = 12), 
         panel.grid.minor = element_blank(), 
         plot.margin = margin(0, 5, 5, 5, unit = "pt"), 
-        legend.margin = margin(5, 5, 0, 5, unit = "pt"))
+        legend.margin = margin(5, 5, 0, 5, unit = "pt"),
+        panel.spacing.y = unit(1.1, "lines"))
 
-ggsave("outputs/rel_catches_expl-bio_1961-2010.tif")
+ggsave("outputs/rel_catches_expl-bio_1961-2010.png")
 
+
+# Combining fishing pressure and relative catches/biomass
+#Get legend from relative plot
+leg <- get_plot_component(relfp_plot, "guide-box-top")
+
+#Remove legend from relative plot
+relfp_plot <- relfp_plot+
+  theme(legend.position = "none")
+
+#Creating new plot
+plot_grid(leg, plot_grid(fp_plot, relfp_plot, ncol = 2, labels = "AUTO"), 
+          nrow = 2, rel_heights = c(0.1, 1))
+
+#Saving new plot
+ggsave("outputs/fishing_pressure-rel_catches_expl_bio_1961-2010.png", 
+       bg = "white")
 
 # Loading estimated catches forced with CCAMLR effort ---------------------
 # Gridded DBPM
