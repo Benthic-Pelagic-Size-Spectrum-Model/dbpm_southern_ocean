@@ -80,7 +80,7 @@ reg_name <- list.files(base_folder, pattern = "^(e|w)")
 # Load exploited biomass estimated for all regions and resolutions
 bio_data <- reg_name |> 
   map(\(x) file.path(base_folder, x, "gridded_dbpm_outputs")) |> 
-  map(\(x) list.files(x, "mean_pred_det_10g-1t-bio_exploit-bio_", 
+  map(\(x) list.files(x, "mean_pred_det_10g-1t-bio_exploit-bio_simask", 
                       full.names = T, recursive = T)) |> 
   unlist() |> 
   map(\(x) read_parquet(x)) |> 
@@ -140,36 +140,6 @@ bio_data |>
   write_parquet("outputs/mean_yr_tot_exploited_biomass_1841-2010.parquet")
 
 
-
-# Exploited biomass vs catches --------------------------------------------
-rel_fp <- read_parquet(
-  "outputs/catch_expl-bio_fishing-pressure_1961-2010.parquet")
-
-rel_fp |> 
-  select(year:resolution, starts_with("rel_")) |>
-  pivot_longer(starts_with("rel_"), names_to = "data", values_to = "vals") |> 
-  ggplot(aes(color = resolution, linetype = data))+
-  geom_line(aes(year, vals))+
-  scale_color_manual("DBPM resolution",
-                     values = c("#d7301f", "#fc8d59", "#fdcc8a"))+
-  scale_linetype_manual("", values = c(2, 1), 
-                        labels = c("Catches", "Exploitable biomass"))+
-  facet_grid(region~.)+
-  theme_bw()+
-  theme(strip.text = element_text(family = "sans", size = 12),
-        axis.text = element_text(family = "sans", size = 12), 
-        axis.title = element_blank(), legend.position = "top",
-        legend.direction = "horizontal", legend.title.position = "top",
-        legend.title = element_text(family = "sans", face = "bold", 
-                                    hjust = 0.5), 
-        legend.text = element_text(family = "sans", size = 12), 
-        panel.grid.minor = element_blank(), 
-        plot.margin = margin(0, 5, 5, 5, unit = "pt"), 
-        legend.margin = margin(5, 5, 0, 5, unit = "pt"))
-
-ggsave("outputs/rel_catches_expl-bio_1961-2010.tif")
-
-
 # Non-spatial estimated catches -------------------------------------------
 catch_dbpm_nonspatial <- reg_name |> 
   map(\(x) file.path(base_folder, x, "run_nonspatial/1deg")) |> 
@@ -216,7 +186,6 @@ catch_data |>
   write_parquet("outputs/mean_yr_estimated_catches_simask_1841-2010.parquet")
 
 
-
 # Calculating fishing pressure plots --------------------------------------
 fishing_pressure <- catch_data |> 
   left_join(bio_data, by = c("year", "region", "resolution")) |> 
@@ -242,15 +211,13 @@ fishing_pressure |>
 
 ggsave("outputs/fishing_pressure_1841-1960.tif")
 
-
 fishing_pressure |> 
   filter(period == "historical") |> 
   ggplot(aes(year, fp, color = resolution))+
-  geom_line(aes(size = resolution))+
-  scale_size_manual("DBPM resolution", values = c(1.6, 0.8, 0.4))+
+  geom_line()+
   geom_point(aes(shape = resolution))+
   scale_color_manual("DBPM resolution",
-                     values = c("#d7301f", "#fc8d59", "#fdcc8a"))+
+                     values = c("#d7301f", "#fc8d59"))+
   guides(shape = guide_legend(title = "DBPM resolution"))+
   facet_grid(region~., scales = "free")+
   theme_bw()+
@@ -266,9 +233,47 @@ fishing_pressure |>
         legend.text = element_text(family = "sans", size = 12), 
         panel.grid.minor = element_blank(), 
         plot.margin = margin(0, 5, 5, 5, unit = "pt"), 
-        legend.margin = margin(5, 5, 0, 5, unit = "pt"))
+        legend.margin = margin(5, 5, 0, 5, unit = "pt"),
+        panel.spacing.y = unit(1.25, "lines"))
   
 ggsave("outputs/fishing_pressure_1961-2010.png")
+
+
+# Exploited biomass vs catches --------------------------------------------
+# rel_fp
+fishing_pressure |> 
+  filter(year >= 1961) |> 
+  group_by(region, resolution) |> 
+  mutate(max_ts_catch = max(mean_catch, na.rm = T),
+         max_ts_expl_bio = max(mean_expl_bio, na.rm = T)) |> 
+  
+
+# rel_fp <- read_parquet(
+#   "outputs/catch_expl-bio_fishing-pressure_1961-2010.parquet")
+
+rel_fp |> 
+  select(year:resolution, starts_with("rel_")) |>
+  pivot_longer(starts_with("rel_"), names_to = "data", values_to = "vals") |> 
+  ggplot(aes(color = resolution, linetype = data))+
+  geom_line(aes(year, vals))+
+  scale_color_manual("DBPM resolution",
+                     values = c("#d7301f", "#fc8d59", "#fdcc8a"))+
+  scale_linetype_manual("", values = c(2, 1), 
+                        labels = c("Catches", "Exploitable biomass"))+
+  facet_grid(region~.)+
+  theme_bw()+
+  theme(strip.text = element_text(family = "sans", size = 12),
+        axis.text = element_text(family = "sans", size = 12), 
+        axis.title = element_blank(), legend.position = "top",
+        legend.direction = "horizontal", legend.title.position = "top",
+        legend.title = element_text(family = "sans", face = "bold", 
+                                    hjust = 0.5), 
+        legend.text = element_text(family = "sans", size = 12), 
+        panel.grid.minor = element_blank(), 
+        plot.margin = margin(0, 5, 5, 5, unit = "pt"), 
+        legend.margin = margin(5, 5, 0, 5, unit = "pt"))
+
+ggsave("outputs/rel_catches_expl-bio_1961-2010.tif")
 
 
 # Loading estimated catches forced with CCAMLR effort ---------------------

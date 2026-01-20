@@ -105,9 +105,7 @@ fao48 <- effort_both |>
         axis.title.y = element_text(family = "sans", size = 14),
         axis.text = element_text(family = "sans", size = 12),
         legend.title = element_text(face = "bold"),
-        # legend.byrow = T, 
         legend.position = "right",
-        # legend.position = c(0.125, 0.875),
         legend.text = element_text(family = "sans", size = 12), 
         plot.margin = margin(5, 15, 5, 5, "pt"),
         plot.subtitle = element_text(family = "sans", size = 12, hjust = 0.5))
