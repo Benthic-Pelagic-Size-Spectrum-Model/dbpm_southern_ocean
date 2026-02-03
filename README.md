@@ -1,12 +1,12 @@
-# Dynamic Benthic Pelagic Model (DBPM) calibration - ISIMIP3A protocol
+# Dynamic Benthic Pelagic Model (DBPM) - Southern Ocean 
 This repository contains all code necessary to process inputs used by DBPM. This repository has been redesigned to use both Python and R as part of the model workflow. Following protocol ISIMIP3A, this simulation uses inputs from GFDL-MOM6-COBALT2 at two horizontal resolutions: $0.25^{\circ}$ (original) and $1^{\circ}$ (coarsen).  
 
 ## How to cite
 You can access and use the code contained in this repository as described in the licence. If using this code as a basis for your work, remember you must cite its use using the following citation:  
-- Fierro-Arcos, D., Blanchard, J. Code to support the publication: Catch-based skill assessment of a global marine ecosystem model applied to the circumpolar Southern Ocean: Case study using DBPMv2. (Version 2.0.0) \[Computer software\]. https://doi.org/TBA  
+- Fierro-Arcos, D., Blanchard, J. L. Code to support the publication: Evaluating multiple sources of uncertainty in a global marine ecosystem model from a regional perspective in the Southern Ocean: A case study using DBPMv2. (Version 2.0.0) \[Computer software\]. https://doi.org/TBA  
   
 When using the code in a publication, please also include the following citation in addition to the citation above:  
-- Fierro-Arcos, D., Blanchard, J., Corney, S., Hayashida, H., Heil, P., Kiss, A. E., Meyer, A. (In preparation). Catch-based skill assessment of a global marine ecosystem model applied to the circumpolar Southern Ocean: Case study using DBPMv2.  
+- Fierro-Arcos, D., Corney, S., Hayashida, H., Heil, P., Kiss, A. E., Meyer, A., Blanchard, J. L. (In preparation). Evaluating multiple sources of uncertainty in a global marine ecosystem model from a regional perspective in the Southern Ocean: A case study using DBPMv2.  
   
 ## Step 1. Processing DBPM climate inputs at a global scale
 - Script [`01_processing_dbpm_global_inputs.ipynb`](scripts/01_processing_dbpm_global_inputs.ipynb) processes environmental data needed to force the DBPM model at a global scale. GFDL-MOM6-COBALT2 output files are transformed from `netCDF` to analysis ready `zarr` files. Files for `spinup` period are also created here.  
