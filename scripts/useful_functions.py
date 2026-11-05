@@ -2,7 +2,7 @@
 
 # Library of useful functions
 # Authors: Denisse Fierro Arcos
-# Date last update: 2025-04-30
+# Date last update: 2026-11-04
 
 # Loading libraries
 import xarray as xr
@@ -12,6 +12,8 @@ import os
 from glob import glob
 import pandas as pd
 import json
+import cftime
+from datetime import datetime as dt
 
 
 #Transforming netCDF files to zarr
@@ -1724,3 +1726,239 @@ def merge_files(var, folder, merge_by = 'decade', **kwargs):
             ds.to_netcdf(os.path.join(folder, f_out))
     else:
         print('"merge_by" should be either "decade" or "year"')
+
+# Defining attributes for coordinates ----
+def coord_atts(choice, **extra):
+    lat_atts = {'long_name': 'latitude',
+                'units': 'degrees_north',
+                'standard_name': 'latitude'}
+    
+    lon_atts = {'long_name': 'longitude',
+                'units': 'degrees_east',
+                'standard_name': 'longitude'}
+    if choice == 'lat':
+        lat_atts.update(extra)
+        return lat_atts
+    elif choice == 'lon':
+        lon_atts.update(extra)
+        return lon_atts
+
+
+# Defining attributes for weight bins ----
+def weight_atts(choice, **extra):
+    # Weight bins
+    bin_atts = {'long_name': 'Size-structured bins',
+                'units': 'log10 g',
+                'standard_name': 'size_structured_weight_bins', 
+                'bounds': 'bin_bnds'}
+    # Weight bands
+    bin_bnds_atts = {'long_name': 
+                     'Size-structured bins provide biomass in weight bins: [1-10g],' +
+                     ' (10-100g], (100g-1kg], (1-10kg], (10-100kg], (>100kg]',
+                     'units': 'g',
+                     'standard_name': 'size_structured_weight_bins_range'}
+    if choice == 'weights':
+        bin_atts.update(extra)
+        return bin_atts
+    elif choice == 'weight_bands':
+        bin_bnds_atts.update(extra)
+        return bin_bnds_atts
+
+
+# Define global attributes ----
+def global_atts(**extra):
+    global_atts = {'Conventions': 'CF-1.13',
+                   'title': 'Dynamic Benthic Pelagic Model (DBPM) outputs: Evaluating ' + 
+                   'multiple sources of uncertainty in a global marine ecosystem model ' + 
+                   'from a Southern Ocean perspective',
+                   'history': f'Created on {dt.now()} by 06_running_gridded_DBPM.py > ' + 
+                   '08_calculating_biomass > 14_saving_dbpm_outputs.ipynb',
+                   'institution': 'Institute for Marine and Antarctic Studies (IMAS) at ' + 
+                   'the University of Tasmania, Australian Centre for Excellence in ' + 
+                   'Antarctic Research (ACEAS)',
+                   'source': 'DBPM Southern Ocean code repository: ' + 
+                   'https://github.com/Benthic-Pelagic-Size-Spectrum-Model/dbpm_southern_ocean',
+                   'references': 'Pre-print: http://ssrn.com/abstract=7355654',
+                   'comment': 'DBPM simulations followed the FishMIP2.0 ISIMIP3a protocol: ' + 
+                   'https://github.com/Fish-MIP/FishMIP2.0_ISIMIP3a',
+                   'contact': 'Denisse Fierro Arcos <lilian.fierroarcos@utas.edu.au>, ' + 
+                   'Julia Blanchard <julia.blanchard@utas.edu.au>',
+                   'license': 'CC-BY-SA-4.0'}
+    global_atts.update(extra)
+    return global_atts
+
+
+# Define time attributes ----
+def time_atts(**extra):
+    time_atts = {'standard_name': 'time',
+                 'calendar': 'standard'}
+    time_atts.update(extra)
+    return time_atts
+
+
+# Define pelagics attributes ----
+def pelagics_atts(choice):
+    if choice == 'biomass':
+        tpb_atts = {'short_name': 'tpb',
+                    'standard_name': 'total_pelagic_biomass_density',
+                    'long_name': 
+                    'All pelagic consumers (trophic level >1, vertebrates and invertebrates)',
+                    'units': 'g m-2',
+                    'cell_methods': 'bins: sum'}
+        return tpb_atts
+    elif choice == 'catches':
+        tpc_atts = {'short_name': 'tpc',
+                    'standard_name': 'total_pelagic_catch_density_all_fishing_sectors',
+                    'long_name': 'Catch at sea of all pelagic consumers (trophic level >1, ' + 
+                    'vertebrates and invertebrates)',
+                    'units': 'g m-2',
+                    'cell_methods': 'bins: sum'}
+        return tpc_atts
+
+
+# Define demersals attributes ----
+def demersals_atts(choice):
+    if choice == 'biomass':
+        tdb_atts = {'short_name': 'tdb',
+                    'standard_name': 'total_demersal_biomass_density',
+                    'long_name': 
+                    'All demersal consumers (trophic level >1, vertebrates and invertebrates)',
+                    'units': 'g m-2',
+                    'cell_methods': 'bins: sum'}
+        return tdb_atts
+    elif choice == 'catches':
+        tdc_atts = {'short_name': 'tdc',
+                    'standard_name': 'total_demersal_catch_density_all_fishing_sectors',
+                    'long_name': 'Catch at sea of all demersal consumers (trophic level >1, ' + 
+                    'vertebrates and invertebrates)',
+                    'units': 'g m-2',
+                    'cell_methods': 'bins: sum'}
+        return tdc_atts
+
+
+# Define total community attributes ----
+def community_atts(choice):
+    if choice == 'biomass':
+        tcb_atts = {'short_name': 'tcb',
+                    'standard_name': 'total_consumer_biomass_density',
+                    'long_name': 
+                    'All consumers (trophic level >1, vertebrates and invertebrates)',
+                    'units': 'g m-2',
+                    'cell_methods': 'bins: sum'}
+        return tcb_atts
+    elif choice == 'catches':
+        tc_atts = {'short_name': 'tc',
+                   'standard_name': 'total_catch_density_all_fishing_sectors',
+                    'long_name': 'Catch at sea (all catch as a result of all effort including ' + 
+                   'reported and IUU) summed for both Industrial and Artisanal sectors',
+                    'units': 'g m-2',
+                    'cell_methods': 'bins: sum'}
+        return tc_atts
+        
+
+# Define size-structured community attributes ----
+def size_str_comm_atts(choice):
+    if choice == 'biomass':
+        tcblog10_atts = {'short_name': 'tcblog10',
+                         'standard_name': 'total_consumer_biomass_density_in_log10_weight_bins',
+                         'long_name': 'Total Consumer Biomass Density in log10 Weight Bins',
+                         'units': 'g m-2'}
+        return tcblog10_atts
+    elif choice == 'catches':
+        tclog10_atts = {'short_name': 'tclog10',
+                        'standard_name': 
+                        'total_catch_density_all_fishing_sectors_in_log10_weight_bins',
+                        'long_name': 'Catch at sea (all catch as a result of all effort including ' +
+                        'reported and IUU) summed for both Industrial and Artisanal sectors in ' + 
+                        'log10 Weight Bins',
+                        'units': 'g m-2'}
+        return tclog10_atts
+        
+
+# Applying CF convention to dataset ----
+def open_cf_xarray(file_path):
+    da = xr.open_mfdataset(file_path)
+    da = da.rename_dims({'size_class': 'bins'}).rename_vars({'size_class': 'bins'})
+    if da.bins.max() < 100:
+        da['bins'] = 10**da.bins
+    da['lat'].attrs = coord_atts('lat')
+    da['lon'].attrs = coord_atts('lon')
+    da['bins'].attrs = weight_atts('weights')
+    return da
+
+
+# Calculating total biomass/catches per functional group (across all weight bins) ----
+def total_func_groups(ds_var_int, choice):
+    [det_var] = [v for v in ds_var_int.data_vars if 'det' in v]
+    [pred_var] = [v for v in ds_var_int.data_vars if 'pred' in v]
+
+    det_atts = demersals_atts(choice)
+    pred_atts = pelagics_atts(choice)
+    total_atts = community_atts(choice)
+    
+    mask = xr.where(np.isfinite(
+        ds_var_int[det_var].isel(time = 0, bins = 0)), 
+                    1, np.nan).squeeze().drop_vars(('bins', 'time'))
+    
+    #Detritivores
+    det = ds_var_int[det_var].sum('bins').to_dataset(name = det_atts['short_name'])
+    det.attrs = global_atts()
+    det[det_atts['short_name']].attrs = det_atts
+
+    #Predators
+    pred = ds_var_int[pred_var].sum('bins').to_dataset(name = pred_atts['short_name'])
+    pred.attrs = global_atts()
+    pred[pred_atts['short_name']].attrs = pred_atts
+
+    #Community
+    total = ((pred[pred_atts['short_name']]+det[det_atts['short_name']]).
+        to_dataset(name = total_atts['short_name']))
+    total.attrs = global_atts()
+    total[total_atts['short_name']].attrs = total_atts
+    return det*mask, pred*mask, total*mask
+
+
+# Calculating total biomass grouped by weight bins ----
+def total_func_groups_weight_bins(ds_var_int, weight_range, bins, choice):
+    # Create land mask
+    mask = xr.where(np.isfinite(
+        ds_var_int[list(ds_var_int.keys())[0]].isel(time = 0, bins = 0)), 
+                    1, np.nan).squeeze().drop_vars(('bins', 'time'))
+    
+    dict_atts = size_str_comm_atts(choice)
+    
+    # Format weight bins correctly
+    weight_range = weight_range[weight_range.max(axis = 1) > ds_var_int.bins.min().values]
+    if len(weight_range)+1 != len(bins):
+        bins = bins[bins >= weight_range.min()]
+    weight_bins = pd.cut(ds_var_int.bins, bins = bins, labels = weight_range.mean(axis = 1))
+    totlog10 = ds_var_int.copy()
+    totlog10['bins'] = np.log10(weight_bins.astype('float'))
+    totlog10 = (totlog10.groupby('bins').sum().to_array(dim = 'var').sum('var').
+        to_dataset(name = dict_atts['short_name']))
+    totlog10['bins'].attrs = weight_atts('weights')
+    totlog10.attrs = global_atts()
+    totlog10['bin_bnds'] = (('bins', 'bnds'), weight_range)
+    totlog10['bin_bnds'].attrs = weight_atts('weight_bands')
+    totlog10[dict_atts['short_name']].attrs = dict_atts
+    return totlog10*mask
+
+
+# Splitting data over time before saving ----
+def split_periods(ds_var_int, period_info, calendar = 'standard'):
+    da_split = ds_var_int.sel(time = period_info['dates'])
+    da_split['time'] = [cftime.date2num(d, units = period_info['units'], 
+                                        calendar = calendar) for d in period_info['dates']]
+    da_split['time'].attrs = time_atts()
+    da_split['time'] = da_split['time'].assign_attrs(units = period_info['units'])
+    return da_split
+
+
+# Formatting time dimension before saving ----
+def format_time(ds_var_int, calendar = 'standard'):
+    ds_var_int['time'] = [cftime.date2num(
+        d, units = 'days since 1901-1-1 00:00:00', 
+        calendar = calendar) for d in pd.DatetimeIndex(ds_var_int.time)]
+    ds_var_int['time'].attrs = time_atts()
+    ds_var_int['time'] = ds_var_int['time'].assign_attrs(units = 'days since 1901-1-1 00:00:00')
+    return ds_var_int
