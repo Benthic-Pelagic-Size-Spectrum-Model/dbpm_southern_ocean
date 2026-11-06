@@ -1875,6 +1875,16 @@ def size_str_comm_atts(choice):
         return tclog10_atts
         
 
+# Create land mask from outputs
+def land_mask(da):
+    has_data = da.notnull().any(dim = ['lat', 'lon'])
+    first_bin = has_data.argmax('bins').dropna('time')
+    mask = (da.sel(time = first_bin.isel(time = 0).time).
+        isel(bins = first_bin.isel(time = 0).values))
+    mask = xr.where(np.isfinite(mask), 1, np.nan).squeeze().drop_vars(('bins', 'time'))
+    return mask
+
+
 # Applying CF convention to dataset ----
 def open_cf_xarray(file_path):
     da = xr.open_mfdataset(file_path)
@@ -1895,10 +1905,9 @@ def total_func_groups(ds_var_int, choice):
     det_atts = demersals_atts(choice)
     pred_atts = pelagics_atts(choice)
     total_atts = community_atts(choice)
-    
-    mask = xr.where(np.isfinite(
-        ds_var_int[det_var].isel(time = 0, bins = 0)), 
-                    1, np.nan).squeeze().drop_vars(('bins', 'time'))
+
+    # Create land mask   
+    mask = land_mask(ds_var_int[det_var])
     
     #Detritivores
     det = ds_var_int[det_var].sum('bins').to_dataset(name = det_atts['short_name'])
@@ -1921,9 +1930,7 @@ def total_func_groups(ds_var_int, choice):
 # Calculating total biomass grouped by weight bins ----
 def total_func_groups_weight_bins(ds_var_int, weight_range, bins, choice):
     # Create land mask
-    mask = xr.where(np.isfinite(
-        ds_var_int[list(ds_var_int.keys())[0]].isel(time = 0, bins = 0)), 
-                    1, np.nan).squeeze().drop_vars(('bins', 'time'))
+    mask = land_mask(ds_var_int[list(ds_var_int.keys())[0]])
     
     dict_atts = size_str_comm_atts(choice)
     
