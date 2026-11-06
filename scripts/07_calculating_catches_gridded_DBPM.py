@@ -13,12 +13,12 @@ import json
 import numpy as np
 
 # Name of region and model resolution ----
-region = 'fao-58'
-reg_name = 'east_antarctica'
+region = 'fao-88'
+reg_name = 'west_antarctica'
 model_res = '1deg'
 
 # Choose between '_simask' and '_ccamlr_eff' ----
-runs = '_ccamlr_eff'
+runs = ''#'_ccamlr_eff'
 
 # Paths to input and output folders
 base_folder = f'/g/data/vf71/la6889/dbpm_inputs/{reg_name}'
@@ -82,7 +82,7 @@ fishing_mort_det = ((fish_mort_det*effort).
 # Predators
 catch_pred = fishing_mort_pred*predators*size_bin_vals
 catch_pred.name = 'catch_pred'
-catch_pred = catch_pred.chunk({'time': 12})
+catch_pred = catch_pred.chunk({'time': 12}).drop_encoding()
 catch_pred.to_zarr(os.path.join(outputs_folder,
                                 f'catches_pred{runs}_{model_res}_{region}_1841_2010.zarr'), 
                    mode = 'w', consolidated = True)
@@ -90,21 +90,21 @@ catch_pred.to_zarr(os.path.join(outputs_folder,
 # Detritivores
 catch_det = fishing_mort_det*detritivores*size_bin_vals
 catch_det.name = 'catch_det'
-catch_det = catch_det.chunk({'time': 12})
+catch_det = catch_det.chunk({'time': 12}).drop_encoding()
 catch_det.to_zarr(os.path.join(outputs_folder,
                                 f'catches_det{runs}_{model_res}_{region}_1841_2010.zarr'), 
                    mode = 'w', consolidated = True)
 
 ## Calculate total catches per group and time step ---
 # Predators
-tot_catch_pred = (catch_pred*gridded_params['log_size_increase']).sum('size_class')
+tot_catch_pred = (catch_pred*gridded_params['log_size_increase']).sum('size_class').drop_encoding()
 tot_catch_pred.name = 'tot_catch_pred'
 tot_catch_pred.to_zarr(os.path.join(
     outputs_folder, f'tot_catches_pred{runs}_{model_res}_{region}_1841_2010.zarr'), 
                    mode = 'w', consolidated = True)
 
 # Detritivores
-tot_catch_det = (catch_det*gridded_params['log_size_increase']).sum('size_class')
+tot_catch_det = (catch_det*gridded_params['log_size_increase']).sum('size_class').drop_encoding()
 tot_catch_det.name = 'tot_catch_det'
 tot_catch_det.to_zarr(os.path.join(
     outputs_folder, f'tot_catches_det{runs}_{model_res}_{region}_1841_2010.zarr'), 
