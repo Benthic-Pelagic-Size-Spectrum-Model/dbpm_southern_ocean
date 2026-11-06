@@ -18,11 +18,11 @@ from multiprocessing import freeze_support
 # makes them FishMIP compliant. CF convention is also applied to outputs
 
 # Parent folder where all input variables are stored
-base_folder = '/g/data/vf71/la6889/dbpm_inputs/east*/gridded_dbpm_outputs/025deg'
+base_folder = '/g/data/vf71/la6889/dbpm_inputs/*/gridded_dbpm_outputs/*deg'
 base_dirs = glob(base_folder)
 runs = ['_simask', '_ccamlr_eff', '']
 folder_out = '/g/data/vf71/la6889/dbpm_southern_ocean/outputs_publication/'
-combos = list(product(base_dirs, runs, ['catches', 'biomass']))
+combos = list(product(base_dirs, runs, ['biomass', 'catches']))
 
 #Spinup and simulation periods
 spinup_period = {'dates': pd.date_range('1841-01-01', '1960-12-31', freq = 'MS'),
