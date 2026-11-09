@@ -1,10 +1,14 @@
-# Dynamic Benthic Pelagic Model (DBPM) - Southern Ocean 
+# Evaluating multiple sources of uncertainty in a global marine ecosystem model from a Southern Ocean perspective 
+## Dynamic Benthic Pelagic Model (DBPM) 
 This repository contains all code necessary to process inputs used by DBPM. This repository has been redesigned to use both Python and R as part of the model workflow. Following protocol ISIMIP3A, this simulation uses inputs from GFDL-MOM6-COBALT2 at two horizontal resolutions: $0.25^{\circ}$ (original) and $1^{\circ}$ (coarsen).  
 
 ## How to cite
 All code contained in this repository is made available under an open licence (see licence tab for more details). Please ensure you include the following citations if using this code as part of an analysis that is being published:
 - Fierro-Arcos, D., Corney, S., Hayashida, H., Heil, P., Kiss, A. E., Meyer, A., Blanchard, J. L. (2026). Preprint - Evaluating multiple sources of uncertainty in a global marine ecosystem model from a regional perspective: A case study in the Southern Ocean using DBPM.  DOI: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7355654
-- Fierro-Arcos, D., Blanchard, J. L. DBPM Southern Ocean evaluation runs. (Version 2.0.0) \[Computer software\]. https://doi.org/TBA  
+- Fierro-Arcos, D., Blanchard, J. L. DBPM Southern Ocean evaluation runs. (Version 1.0.0) \[Computer software\]. https://doi.org/TBA  
+
+## DBPM outputs 
+Outputs for the simulations described here will be available through the [IMAS Metadata Catalogue](https://metadata.imas.utas.edu.au/geonetwork/srv/eng/catalog.search#/home). DOI to be shared once available.  
   
   
 ## Step 1. Processing DBPM climate inputs at a global scale
