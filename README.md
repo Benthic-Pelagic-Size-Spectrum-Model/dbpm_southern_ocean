@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24067080.svg)](https://doi.org/10.5281/zenodo.24067080)
+
 # Dynamic Benthic Pelagic Model (DBPM): Evaluating multiple sources of uncertainty in a global marine ecosystem model from a Southern Ocean perspective 
 This repository contains all code necessary to process inputs used by DBPM. This repository has been redesigned to use both Python and R as part of the model workflow. Following protocol ISIMIP3A, this simulation uses inputs from GFDL-MOM6-COBALT2 at two horizontal resolutions: $0.25^{\circ}$ (original) and $1^{\circ}$ (coarsen).  
 
