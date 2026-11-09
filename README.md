@@ -4,7 +4,7 @@ This repository contains all code necessary to process inputs used by DBPM. This
 ## How to cite
 All code contained in this repository is made available under an open licence (see licence tab for more details). Please ensure you include the following citations if using this code as part of an analysis that is being published:
 - Fierro-Arcos, D., Corney, S., Hayashida, H., Heil, P., Kiss, A. E., Meyer, A., Blanchard, J. L. (2026). Preprint - Evaluating multiple sources of uncertainty in a global marine ecosystem model from a regional perspective: A case study in the Southern Ocean using DBPM.  DOI: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7355654
-- Fierro-Arcos, D., Blanchard, J. L. DBPM Southern Ocean evaluation runs. (Version 1.0.0) \[Computer software\]. https://doi.org/TBA  
+- Fierro-Arcos, D., Blanchard, J. L. DBPM Southern Ocean evaluation runs. (Version 1.0.0) \[Computer software\]. https://doi.org/10.5281/zenodo.24067080    
 
 ## DBPM outputs 
 Outputs for the simulations described here will be available through the [IMAS Metadata Catalogue](https://metadata.imas.utas.edu.au/geonetwork/srv/eng/catalog.search#/home). DOI to be shared once available.  
@@ -57,8 +57,8 @@ Plots created in this script can be used to visually inspect the fit of predicte
 ## Step 12. Plots for publication
 - Script [`12_supporting_plots.R`](scripts/12_supporting_plots.R) produces plots to support contents of manuscript describing exploration on DBPM outputs within the Southern Ocean.  
 
-## Step 13. 
-- Script [`13_saving_dbpm_outputs.R`](scripts/13_saving_dbpm_outputs.R) saves DBPM outputs for the Southern Ocean simulations that are compliant with both [FishMIP guidelines](https://github.com/Fish-MIP/FishMIP2.0_ISIMIP3a?tab=readme-ov-file#output-data) and the [CF metadata convention](https://cfconventions.org/).  
+## Step 13. Creating FishMIP and CF-compliant outputs
+- Script [`13_saving_dbpm_outputs.py`](scripts/13_saving_dbpm_outputs.py) saves DBPM outputs for the Southern Ocean simulations that are compliant with both [FishMIP guidelines](https://github.com/Fish-MIP/FishMIP2.0_ISIMIP3a?tab=readme-ov-file#output-data) and the [CF metadata convention](https://cfconventions.org/).  
 
 The `useful_functions` scripts in Python and R contain functions that have been developed to run DBPM.
   
