@@ -8,10 +8,10 @@ authors:
   given-names: "Julia"
   orcid: "https://orcid.org/0000-0003-0532-4824"
 
-title: "Code to support the publication: Catch-based skill assessment of a global marine ecosystem model applied to the circumpolar Southern Ocean: Case study using DBPMv2"
-version: 2.0.0
+title: "DBPM Southern Ocean evaluation runs"
+version: 1.0.0
 doi: TBA
-date-released: TBA
+date-released: 2026--11-09
 url: "https://github.com/Benthic-Pelagic-Size-Spectrum-Model/dbpm_southern_ocean"
 license: Apache-2.0
 
