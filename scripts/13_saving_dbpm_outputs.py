@@ -10,6 +10,7 @@ import dask
 from datetime import datetime as dt
 import pandas as pd
 import numpy as np
+import json
 from itertools import product
 from distributed import Client, LocalCluster
 from multiprocessing import freeze_support
@@ -18,11 +19,11 @@ from multiprocessing import freeze_support
 # makes them FishMIP compliant. CF convention is also applied to outputs
 
 # Parent folder where all input variables are stored
-base_folder = '/g/data/vf71/la6889/dbpm_inputs/*/gridded_dbpm_outputs/*deg'
+base_folder = '/g/data/vf71/la6889/dbpm_inputs/wedd*/gridded_dbpm_outputs/025deg'
 base_dirs = glob(base_folder)
 runs = ['_simask', '_ccamlr_eff', '']
 folder_out = '/g/data/vf71/la6889/dbpm_southern_ocean/outputs_publication/'
-combos = list(product(base_dirs, runs, ['biomass', 'catches']))
+combos = list(product(base_dirs, runs, ['catches']))
 
 #Spinup and simulation periods
 spinup_period = {'dates': pd.date_range('1841-01-01', '1960-12-31', freq = 'MS'),
@@ -50,9 +51,10 @@ def save_outputs(variables, dict_var, period, scenario, region, folder_out, star
 
 
 def fishmip_dbpm_outputs(base_dir, run, var_int):
-    if '025deg' in base_dir:
+    res = os.path.basename(base_dir)
+    if res == '025deg':
         scenario = 'default'
-    elif '1deg' in base_dir:
+    elif res == '1deg':
         scenario = '60arcmin'
     reg = re.search('inputs/(.*)/gr', base_dir).group(1)
 
@@ -67,9 +69,9 @@ def fishmip_dbpm_outputs(base_dir, run, var_int):
     # Load outputs as CF compliant dataset
     da = uf.open_cf_xarray(fn)
     # Calculate totals for functional groups
-    det, pred, total = uf.total_func_groups(da, var_int)
+    det, pred, total = uf.total_func_groups(da, var_int, reg, res)
     # Calculate totals for functional groups and size groups
-    totlog10 = uf.total_func_groups_weight_bins(da, weight_range, bins, var_int)
+    totlog10 = uf.total_func_groups_weight_bins(da, weight_range, bins, var_int, reg, res)
     
     if run != '_ccamlr_eff':
         # Create dictionary with spinup results

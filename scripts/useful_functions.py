@@ -1811,7 +1811,7 @@ def pelagics_atts(choice):
                     'standard_name': 'total_pelagic_catch_density_all_fishing_sectors',
                     'long_name': 'Catch at sea of all pelagic consumers (trophic level >1, ' + 
                     'vertebrates and invertebrates)',
-                    'units': 'g m-2',
+                    'units': 'g m-2 yr-1',
                     'cell_methods': 'bins: sum'}
         return tpc_atts
 
@@ -1831,7 +1831,7 @@ def demersals_atts(choice):
                     'standard_name': 'total_demersal_catch_density_all_fishing_sectors',
                     'long_name': 'Catch at sea of all demersal consumers (trophic level >1, ' + 
                     'vertebrates and invertebrates)',
-                    'units': 'g m-2',
+                    'units': 'g m-2 yr-1',
                     'cell_methods': 'bins: sum'}
         return tdc_atts
 
@@ -1851,7 +1851,7 @@ def community_atts(choice):
                    'standard_name': 'total_catch_density_all_fishing_sectors',
                     'long_name': 'Catch at sea (all catch as a result of all effort including ' + 
                    'reported and IUU) summed for both Industrial and Artisanal sectors',
-                    'units': 'g m-2',
+                    'units': 'g m-2 yr-1',
                     'cell_methods': 'bins: sum'}
         return tc_atts
         
@@ -1871,7 +1871,7 @@ def size_str_comm_atts(choice):
                         'long_name': 'Catch at sea (all catch as a result of all effort including ' +
                         'reported and IUU) summed for both Industrial and Artisanal sectors in ' + 
                         'log10 Weight Bins',
-                        'units': 'g m-2'}
+                        'units': 'g m-2 yr-1'}
         return tclog10_atts
         
 
@@ -1898,7 +1898,7 @@ def open_cf_xarray(file_path):
 
 
 # Calculating total biomass/catches per functional group (across all weight bins) ----
-def total_func_groups(ds_var_int, choice):
+def total_func_groups(ds_var_int, choice, region, resolution):
     [det_var] = [v for v in ds_var_int.data_vars if 'det' in v]
     [pred_var] = [v for v in ds_var_int.data_vars if 'pred' in v]
 
@@ -1919,6 +1919,13 @@ def total_func_groups(ds_var_int, choice):
     pred.attrs = global_atts()
     pred[pred_atts['short_name']].attrs = pred_atts
 
+    if choice == 'catches':
+        log_size_increase = json.load(open(glob(os.path.join(
+            '/g/data/vf71/la6889/dbpm_inputs', region, 'gridded_params', resolution, 
+            'dbpm_gridded_size_params_*_python.json'))[0]))['log_size_increase']
+        pred = pred*log_size_increase
+        det = det*log_size_increase
+
     #Community
     total = ((pred[pred_atts['short_name']]+det[det_atts['short_name']]).
         to_dataset(name = total_atts['short_name']))
@@ -1928,7 +1935,7 @@ def total_func_groups(ds_var_int, choice):
 
 
 # Calculating total biomass grouped by weight bins ----
-def total_func_groups_weight_bins(ds_var_int, weight_range, bins, choice):
+def total_func_groups_weight_bins(ds_var_int, weight_range, bins, choice, region, resolution):
     # Create land mask
     mask = land_mask(ds_var_int[list(ds_var_int.keys())[0]])
     
@@ -1939,6 +1946,13 @@ def total_func_groups_weight_bins(ds_var_int, weight_range, bins, choice):
     if len(weight_range)+1 != len(bins):
         bins = bins[bins >= weight_range.min()]
     weight_bins = pd.cut(ds_var_int.bins, bins = bins, labels = weight_range.mean(axis = 1))
+
+    if choice == 'catches':
+        log_size_increase = json.load(open(glob(os.path.join(
+            '/g/data/vf71/la6889/dbpm_inputs', region, 'gridded_params', resolution, 
+            'dbpm_gridded_size_params_*_python.json'))[0]))['log_size_increase']
+        ds_var_int = ds_var_int*log_size_increase
+    
     totlog10 = ds_var_int.copy()
     totlog10['bins'] = np.log10(weight_bins.astype('float'))
     totlog10 = (totlog10.groupby('bins').sum().to_array(dim = 'var').sum('var').
