@@ -345,7 +345,14 @@ catch_both <- catch_ccamlr_data |>
   rename(ccamlr = mean_catch) |> 
   left_join(catch_data |> 
               rename(standardised = mean_catch)) |> 
-  mutate(catch_diff = standardised-ccamlr)
+  mutate(catch_diff = standardised-ccamlr) |> 
+  mutate(new_lab = case_when(str_detect(region, "58") ~ 
+                               "Indian sector\n(FAO 58)",
+                             str_detect(region, "88") ~ 
+                               "Pacific sector\n(FAO 88)", 
+                             str_detect(region, "48") ~ 
+                               "Atlantic sector\n(FAO 48)",
+                             .default = NA)) 
 
 catch_both |> 
   select(!catch_diff) |> 
@@ -365,7 +372,7 @@ catch_both |>
                      values = c("#d7301f", "#fc8d59"))+
   scale_linetype_manual("Fishing effort source", values = c("dashed", "solid"),
                         labels = c("CCAMLR", "standard FishMIP"))+
-  facet_grid(region~., scales = "free")+
+  facet_grid(new_lab~., scales = "free")+
   labs(y = ~paste("Mean catches per unit area (t ", km^-2, " ", year^-1, ")"))+
   theme_bw()+
   theme(strip.text = element_text(family = "sans", size = 12),
@@ -381,7 +388,7 @@ catch_both |>
         plot.margin = margin(0, 5, 5, 5, unit = "pt"), 
         legend.margin = margin(5, 5, 0, 5, unit = "pt"))
   
-ggsave("outputs/diff_eff_catch_estimates_comparison_simask.tif", width = 8, 
+ggsave("outputs/diff_eff_catch_estimates_comparison_simask.png", width = 8, 
        height = 5.5)
 
 

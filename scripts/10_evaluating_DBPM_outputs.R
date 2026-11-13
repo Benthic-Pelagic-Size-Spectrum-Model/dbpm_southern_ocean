@@ -106,6 +106,13 @@ for(fp in base_dirs){
 
 # Save results
 catch_dbpm_obs |> 
+  mutate(new_lab = case_when(str_detect(reg_name, "East") ~ 
+                               "Indian sector\n(FAO 58)",
+                             str_detect(reg_name, "West") ~ 
+                               "Pacific sector\n(FAO 88)", 
+                             str_detect(reg_name, "Wed") ~ 
+                               "Atlantic sector\n(FAO 48)",
+                             .default = NA)) |> 
   write_parquet("outputs/simulated_observed_catches_all.parquet")
 
 # Plotting modelled vs observed catches  ----------------------------------
@@ -119,7 +126,7 @@ si_catch <- catch_dbpm_obs |>
   geom_point(aes(year, vals, color = res, shape = res), size = 1.5)+
   geom_line(aes(year, obs, color = source), linetype = "dashed")+
   geom_point(aes(year, obs, color = source, shape = source), size = 0.2)+
-  facet_grid(region~., scales = "free_y")+
+  facet_grid(new_lab~., scales = "free_y")+
   scale_color_manual(values = c("#d7301f", "#fc8d59",  "#045a8d", "#2b8cbe", 
                                 "#74a9cf"))+
   ylab(~paste("Mean annual catch per unit area (t*", km^-2, ")"))+
@@ -192,7 +199,8 @@ si_catch_both_runs <- catch_dbpm_obs |>
   geom_point(aes(year, vals, color = res, shape = res), size = 1.5)+
   geom_line(aes(year, obs, color = source), linetype = "dashed")+
   geom_point(aes(year, obs, color = source, shape = source), size = 0.2)+
-  facet_grid(region~., scales = "free_y")+
+  facet_grid(new_lab~., scales = "free_y")+
+             # labeller = label_wrap_gen(width = 20))+
   scale_color_manual("", values = c("#d7301f", "#fc8d59", "#045a8d", "#2b8cbe",
                                     "#74a9cf"))+
   scale_linetype_manual("Runs", values = c(1, 3), 
@@ -225,7 +233,8 @@ leg_runs <- get_plot_component(fig_leg, "guide-box-top", return_all = T)
 fig2 <- plot_grid(plot_grid(leg_runs, leg_res, ncol = 2), si_catch_both_runs, 
                   leg_obs, nrow = 3, rel_heights = c(0.15, 1, 0.15))
 
-ggsave("outputs/composite_fig_catches_obs_comp_runs.png", fig2, bg = "white")
+ggsave("outputs/composite_fig_catches_obs_comp_runs.png", fig2, bg = "white", 
+       width = 7.5, height = 5)
 
 
 # Calculating ORA metrics -------------------------------------------------
