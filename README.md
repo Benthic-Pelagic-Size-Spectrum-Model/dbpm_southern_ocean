@@ -9,7 +9,7 @@ All code contained in this repository is made available under an open licence (s
 - Fierro-Arcos, D., Blanchard, J. L. DBPM Southern Ocean evaluation runs. (Version 1.0.0) \[Computer software\]. https://doi.org/10.5281/zenodo.24067080    
 
 ## DBPM outputs 
-Outputs for the simulations described here will be available through the [IMAS Metadata Catalogue](https://metadata.imas.utas.edu.au/geonetwork/srv/eng/catalog.search#/home). DOI to be shared once available.  
+Outputs for the simulations described here will be available through the IMAS Metadata Catalogue. DOI: [10.25959/AS5Y-5652](https://doi.org/10.25959/AS5Y-5652).  
   
   
 ## Step 1. Processing DBPM climate inputs at a global scale
